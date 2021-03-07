@@ -22,6 +22,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
+        proceed.text = "進む"
+        back.text = "戻る"
         repeatOrstop.text = "再生"
 
         super.onCreate(savedInstanceState)
