@@ -27,13 +27,12 @@ class MainActivity : AppCompatActivity() {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
 
         proceed.text = "進む"
         back.text = "戻る"
         repeatOrstop.text = "再生"
-
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
 
         //Android6.0以降の場合
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -56,14 +55,10 @@ class MainActivity : AppCompatActivity() {
 
         //ボタンを押すとスライドショー操作開始
         proceed.setOnClickListener {
-            val nextIntent = Intent(this, MainActivity::class.java)
-            startActivity(nextIntent)
+            getNextInfo()
         }
         back.setOnClickListener {
-            if (mTimer != null) {
-                mTimer!!.cancel()
-                mTimer = null
-            }
+            getPreviousInfo()
         }
         repeatOrstop.setOnClickListener {
             if (mTimer != null) {
@@ -77,6 +72,7 @@ class MainActivity : AppCompatActivity() {
                         }
                     },2000)
                 }
+                getNextInfo()
                 proceed.visibility = View.GONE
                 back.visibility = View.GONE
                 repeatOrstop.text = "停止"
@@ -127,6 +123,52 @@ class MainActivity : AppCompatActivity() {
             cursor.close()
     }
 
+    private fun getNextInfo(){
+        //画像の情報を取得
+        val resolver = contentResolver
+        val cursor = resolver.query(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            null,
+            null,
+            null,
+            null
+        )
+
+        if (cursor!!.moveToNext()) {
+            cursor.moveToNext()
+                //IndexからIDを取得し、そのIDから画像のURIを取得する
+                val fieldIndex =
+                    cursor.getColumnIndex(MediaStore.Images.Media._ID)
+                val id = cursor.getLong(fieldIndex)
+                val imageUri =
+                    ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
+
+                imageView.setImageURI(imageUri)
+            }
+    }
+    private fun getPreviousInfo(){
+        //画像の情報を取得
+        val resolver = contentResolver
+        val cursor = resolver.query(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            null,
+            null,
+            null,
+            null
+        )
+
+        if (cursor!!.moveToPrevious()) {
+            cursor.moveToPrevious()
+            //IndexからIDを取得し、そのIDから画像のURIを取得する
+            val fieldIndex =
+                cursor.getColumnIndex(MediaStore.Images.Media._ID)
+            val id = cursor.getLong(fieldIndex)
+            val imageUri =
+                ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
+
+            imageView.setImageURI(imageUri)
+        }
+    }
 
 }
 
